@@ -37,7 +37,7 @@ This script is working fine, test and giving expected results.
 
 Approach:
 
-#####
+
 
 Before execution this script checks if any Ec2 instance is in running stage, if Yes, it will stop else move to next test
 
@@ -51,3 +51,13 @@ If nothing is provided this tool will assume nothing is created and create all n
 
 When this tool completes execution, please with for 5 minutes to check load balancer url, as instance registration may be still happening in background.
 Summary: User has complete control on the VPC, subnet etc otherwise tool will take care of it.
+
+#######
+
+
+Bonus question:
+
+We can cosnider to put throttling at Nginx end by limiting the numnber of requests per seconf, we need to add following line
+limit_req_zone $binary_remote_addr zone=mylimit:10m rate=10r/s;
+
+We anyway have option of using Autoscale group where in upon reaching specific usage or number of requests, new instance will be automatically spinned up
