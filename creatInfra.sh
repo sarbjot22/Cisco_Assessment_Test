@@ -1,3 +1,18 @@
+echo "First section is going to check if any EC2  instance is already there"
+if [[ $(aws ec2 describe-instance-status  | jq -r '.InstanceStatuses[].InstanceState.Name' | grep  running) ]]; then
+    echo "EC2 instance already in running state so exiting"
+    exit 1
+else
+    echo "EC2 instance not found, progressing further"
+fi
+
+if [[ $(aws elbv2  describe-load-balancers | jq -r '.LoadBalancers[].DNSName') ]]; then
+    echo "Active ELB already present so exiting now"
+    exit 2 
+else
+    echo "Load Balancer also not found, progressing further"
+fi
+
 str="Cisco SPL"
 vpcID=`aws ec2 create-vpc --cidr-block 10.0.0.0/16 |  jq -r '.Vpc.VpcId'`
 
@@ -69,13 +84,13 @@ aws elbv2 register-targets --target-group-arn $targetgrouparn --targets Id=$inst
 aws elbv2 create-listener --load-balancer-arn $loadbalancerarn --protocol HTTP --port 80  --default-actions Type=forward,TargetGroupArn=$targetgrouparn
 
 sleep 30
-
+dnsname=`aws elbv2  describe-load-balancers | jq -r '.LoadBalancers[].DNSName'`
 echo "Congratulations entire setup is done and ready"
 
-echo "EC2 with webserver1:  http://$instanceID1"
+echo "EC2 with webserver1:  http://$publicIpAddr"
 
-
-echo "Load balancer url: "
+echo "Please wait for atleast 5 minutes before accessing the load balancer url"
+echo "Load balancer url: http://$dnsname"
 
 
 

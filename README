@@ -18,8 +18,8 @@ IT will
  - subnet in different regions
  - security group with access on port 22 and 80
  - create keypair
- - create couple of EC2 webservers in each subnet and region
- - Install Apache and start the service
+ - create one EC2 webservers in one of the subnet and region
+ - Install Nginx, create custom html, configure it,  and start the service
  - Create the ELB 
  - Configure ELB by creating target group, listener and registering targets
 
