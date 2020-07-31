@@ -1,7 +1,7 @@
 vpcID=`aws ec2 create-vpc --cidr-block 10.0.0.0/16 |  jq -r '.Vpc.VpcId'`
 
 subnetID1=`aws ec2 create-subnet --vpc-id $vpcID --cidr-block 10.0.1.0/24 --availability-zone us-east-2a| jq -r '.Subnet.SubnetId'`
-
+subnetID2=`aws ec2 create-subnet --vpc-id $vpcID --cidr-block 10.0.2.0/24 --availability-zone us-east-2b| jq -r '.Subnet.SubnetId'`
 
 InternetGatewayID=`aws ec2 create-internet-gateway |  jq -r '.InternetGateway.InternetGatewayId'`
 
@@ -21,9 +21,11 @@ aws ec2 describe-subnets --filters "Name=vpc-id,Values=$vpcID" --query 'Subnets[
 
 
 aws ec2 associate-route-table  --subnet-id $subnetID1 --route-table-id $RoutetableID
+aws ec2 associate-route-table  --subnet-id $subnetID2 --route-table-id $RoutetableID
 
 
 aws ec2 modify-subnet-attribute --subnet-id $subnetID1  --map-public-ip-on-launch
+aws ec2 modify-subnet-attribute --subnet-id $subnetID2 --map-public-ip-on-launch
 
 
 aws ec2 create-key-pair --key-name MyKeyPair --query 'KeyMaterial' --output text > MyKeyPair.pem
@@ -47,7 +49,7 @@ ssh -i MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo apt-get -y update"
 ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo apt-get  install -y nginx"
 
 ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo echo "Cisco SPL" > /tmp/index.html"
-ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo cp index.html /var/www/html/index.nginx-debian.html"
+ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo cp /tmp/index.html /var/www/html/index.nginx-debian.html"
 ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo service nginx start"
 
 
