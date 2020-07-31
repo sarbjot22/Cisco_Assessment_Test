@@ -36,6 +36,7 @@ groupID=`aws ec2 create-security-group --group-name SSHAccess --description "Sec
 
 
 aws ec2 authorize-security-group-ingress --group-id $groupID  --protocol tcp --port 22 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $groupID  --protocol http  --port 80 --cidr 0.0.0.0/0
 
 
 
