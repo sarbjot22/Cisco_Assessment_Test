@@ -1,5 +1,8 @@
 README
 
+Usage Instruction: 
+
+######
 Following things are required to be done.
 
 1. Run this shell script from any Linux server which has access to internet
@@ -29,3 +32,22 @@ Entire automation is done using AWS CLI
 Please note, you need to enter yes, when asked by script, its used for first time connection to newly created EC2 instances.
 
 This script is working fine, test and giving expected results.
+
+########
+
+Approach:
+
+#####
+
+Before execution this script checks if any Ec2 instance is in running stage, if Yes, it will stop else move to next test
+
+It will check if any load balancer is Active, if Yes, it will stop else progress with the instance creation
+
+This script creates the VPC, subnet, internet gateway, route table and so on
+
+User has complete access to modify and control this, if there is existing setup, please provide corresponding VPCID, subnetIDs to script
+
+If nothing is provided this tool will assume nothing is created and create all network resources like VPC, subnet and so on
+
+When this tool completes execution, please with for 5 minutes to check load balancer url, as instance registration may be still happening in background.
+Summary: User has complete control on the VPC, subnet etc otherwise tool will take care of it.
