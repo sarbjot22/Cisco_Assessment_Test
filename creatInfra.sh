@@ -1,3 +1,4 @@
+str="Cisco SPL"
 vpcID=`aws ec2 create-vpc --cidr-block 10.0.0.0/16 |  jq -r '.Vpc.VpcId'`
 
 subnetID1=`aws ec2 create-subnet --vpc-id $vpcID --cidr-block 10.0.1.0/24 --availability-zone us-east-2a| jq -r '.Subnet.SubnetId'`
@@ -36,7 +37,7 @@ groupID=`aws ec2 create-security-group --group-name SSHAccess --description "Sec
 
 
 aws ec2 authorize-security-group-ingress --group-id $groupID  --protocol tcp --port 22 --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress --group-id $groupID  --protocol http  --port 80 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $groupID  --protocol tcp  --port 80 --cidr 0.0.0.0/0
 
 
 
@@ -49,7 +50,7 @@ ssh -i MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo apt-get -y update"
 
 ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo apt-get  install -y nginx"
 
-ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo echo "Cisco SPL" > /tmp/index.html"
+ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo echo $str > /tmp/index.html"
 ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo cp /tmp/index.html /var/www/html/index.nginx-debian.html"
 ssh -i  MyKeyPair.pem ubuntu@"$publicIpAddr" "sudo service nginx start"
 
@@ -63,12 +64,11 @@ loadbalancerarn=`aws elbv2 create-load-balancer --name my-load-balancer --subnet
 
 targetgrouparn=`aws elbv2 create-target-group --name my-targets --protocol HTTP --port 80 --vpc-id $vpcID | jq -r '.TargetGroups[].TargetGroupArn'`
 
+aws elbv2 register-targets --target-group-arn $targetgrouparn --targets Id=$instanceID1 
 
- aws elbv2 register-targets --target-group-arn $targetgrouparn --targets Id=$instanceID1 
+aws elbv2 create-listener --load-balancer-arn $loadbalancerarn --protocol HTTP --port 80  --default-actions Type=forward,TargetGroupArn=$targetgrouparn
 
- aws elbv2 create-listener --load-balancer-arn $loadbalancerarn --protocol HTTP --port 80
-
-sleep 60
+sleep 30
 
 echo "Congratulations entire setup is done and ready"
 
